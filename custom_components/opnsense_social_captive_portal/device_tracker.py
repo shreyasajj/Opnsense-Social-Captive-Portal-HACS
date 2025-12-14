@@ -163,7 +163,7 @@ class CaptivePortalDeviceTracker(CoordinatorEntity, TrackerEntity):
                     return "home" 
                 else:
                     # If not online, return None to make the state 'not_home'
-                    return "away"
+                    return "Away"
         
         # If person ID not found in data, state should be unknown (which defaults to not_home if None)
         return None
