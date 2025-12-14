@@ -1,0 +1,41 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connect to Captive Portal",
+        "description": "Enter the connection details for your Captive Portal server.",
+        "data": {
+          "host": "Host",
+          "port": "Port"
+        },
+        "data_description": {
+          "host": "IP address or hostname of the captive portal server",
+          "port": "Port number (default: 3000)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Failed to connect to the Captive Portal. Please check the host and port.",
+      "unknown": "An unexpected error occurred."
+    },
+    "abort": {
+      "already_configured": "This Captive Portal is already configured."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "pending_requests": {
+        "name": "Pending Requests"
+      },
+      "approved_users": {
+        "name": "Approved Users"
+      },
+      "denied_users": {
+        "name": "Denied Users"
+      },
+      "tracked_devices": {
+        "name": "Tracked Devices"
+      }
+    }
+  }
+}
