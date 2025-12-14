@@ -73,71 +73,101 @@ async def async_setup_entry(
 
 
 class CaptivePortalDeviceTracker(CoordinatorEntity, TrackerEntity):
-    def __init__(self, coordinator, entry, person_data):
+    """Device tracker for a person based on their phone's presence on the network.
+    
+    - Entity name: {person_name}
+    - State: home/not_home based on ARP table polling
+    - Attributes: phone_mac, last_seen, photo
+    """
+
+    def __init__(
+        self,
+        coordinator: CaptivePortalCoordinator,
+        entry: ConfigEntry,
+        person_data: dict,
+    ) -> None:
+        """Initialize the device tracker."""
         super().__init__(coordinator)
-        self._entry = entry
         self._person_id = person_data.get("id")
         self._person_name = person_data.get("name", "Unknown")
-
+        self._entry = entry
+        
+        # Clean name for entity_id
+        clean_name = self._person_name.lower().replace(" ", "_")
+        clean_name = "".join(c for c in clean_name if c.isalnum() or c == "_")
+        
         self._attr_name = self._person_name
         self._attr_unique_id = f"{entry.entry_id}_tracker_{self._person_id}"
+        self.entity_id = f"device_tracker.{clean_name}"
 
-        # Let HA manage entity_id
-        self._attr_source_type = SourceType.ROUTER
-
-        # initialize attrs
-        self._attr_is_connected = None
-        self._attr_entity_picture = None
-        self._attr_extra_state_attributes = {}
-
-    def _find_person(self) -> dict | None:
-        if not self.coordinator.data:
-            return None
-        for p in self.coordinator.data.get("people", []):
-            if p.get("id") == self._person_id:
-                return p
-        return None
+    @property
+    def source_type(self) -> SourceType:
+        """Return the source type."""
+        return SourceType.ROUTER
 
     @property
     def is_connected(self) -> bool | None:
-        # HA uses this to set home/not_home/unknown
-        return self._attr_is_connected
+        """Return true if the device is connected (phone detected on network)."""
+        if self.coordinator.data is None:
+            return None
+        
+        people = self.coordinator.data.get("people", [])
+        for person in people:
+            if person.get("id") == self._person_id:
+                return person.get("online", False)
+        
+        return None
+
+    @property
+    def icon(self) -> str:
+        """Return the icon."""
+        if self.is_connected:
+            return "mdi:account-check"
+        return "mdi:account-off"
 
     @property
     def entity_picture(self) -> str | None:
-        return self._attr_entity_picture
+        """Return the entity picture (contact photo) if available."""
+        if self.coordinator.data is None:
+            return None
+        
+        people = self.coordinator.data.get("people", [])
+        for person in people:
+            if person.get("id") == self._person_id:
+                return person.get("photo")
+        return None
 
-    @property
-    def extra_state_attributes(self) -> dict:
-        return self._attr_extra_state_attributes
 
     @property
     def device_info(self):
+        """Return device information for the tracked person.
+
+        This registers a Device in Home Assistant and attaches this entity to it.
+        """
         return person_device_info(self._entry, str(self._person_id), self._person_name)
+    
+    @property
+    def location_name(self) -> str | None:
+        """Return the location name (zone) of the device."""
+        # Reuse the logic from is_connected to determine if the device is "at home"
+        
+        if self.coordinator.data is None:
+            # If no data, cannot determine location
+            return None 
 
-    def _handle_coordinator_update(self) -> None:
-        person = self._find_person()
-
-        if person is None:
-            self._attr_is_connected = None
-            self._attr_entity_picture = None
-            self._attr_extra_state_attributes = {
-                "person_id": self._person_id,
-                "person_name": self._person_name,
-                "source": "captive_portal",
-            }
-        else:
-            self._attr_is_connected = bool(person.get("online", False))
-            self._attr_entity_picture = person.get("photo")
-            self._attr_extra_state_attributes = {
-                "person_id": self._person_id,
-                "person_name": self._person_name,
-                "phone_mac": person.get("phone_mac"),
-                "phone_count": person.get("phone_count", 0),
-                "source": "captive_portal",
-            }
-
-        super()._handle_coordinator_update()
+        people = self.coordinator.data.get("people", [])
+        for person in people:
+            if person.get("id") == self._person_id:
+                if person.get("online", False):
+                    # If online, assume the location is "home"
+                    return "home" 
+                else:
+                    # If not online, return None to make the state 'not_home'
+                    return None
+        
+        # If person ID not found in data, state should be unknown (which defaults to not_home if None)
+        return None
+    
     @property
     def extra_state_attributes(self) -> dict:
         """Return extra state attributes."""
