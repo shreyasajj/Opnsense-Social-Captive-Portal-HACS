@@ -10,6 +10,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from . import CaptivePortalCoordinator
 from .const import DOMAIN
+from .device import person_device_info
 
 
 async def async_setup_entry(
@@ -136,6 +137,14 @@ class CaptivePortalDeviceTracker(CoordinatorEntity, TrackerEntity):
                 return person.get("photo")
         return None
 
+
+    @property
+    def device_info(self):
+        """Return device information for the tracked person.
+
+        This registers a Device in Home Assistant and attaches this entity to it.
+        """
+        return person_device_info(self._entry, str(self._person_id), self._person_name)
     @property
     def extra_state_attributes(self) -> dict:
         """Return extra state attributes."""

@@ -12,6 +12,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from . import CaptivePortalCoordinator
 from .const import DOMAIN
+from .device import hub_device_info, person_device_info
 
 
 async def async_setup_entry(
@@ -93,6 +94,7 @@ class CaptivePortalApprovalPendingSensor(CoordinatorEntity, BinarySensorEntity):
         super().__init__(coordinator)
         self._attr_name = "Captive Portal Approval Pending"
         self._attr_unique_id = f"{entry.entry_id}_approval_pending"
+        self._attr_device_info = hub_device_info(entry)
         self._attr_icon = "mdi:account-clock"
         self.entity_id = "binary_sensor.captive_portal_approval_pending"
     

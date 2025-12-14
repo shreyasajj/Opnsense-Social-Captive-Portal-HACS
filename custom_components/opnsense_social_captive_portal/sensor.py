@@ -12,6 +12,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from . import CaptivePortalCoordinator
 from .const import DOMAIN
+from .device import hub_device_info, person_device_info
 
 
 async def async_setup_entry(
@@ -129,6 +130,7 @@ class CaptivePortalSensor(CoordinatorEntity, SensorEntity):
         self._attr_name = f"Captive Portal {name}"
         self._attr_unique_id = f"{entry.entry_id}_{sensor_type}"
         self._attr_icon = icon
+        self._attr_device_info = hub_device_info(entry)
 
     @property
     def native_value(self) -> int | None:
@@ -165,6 +167,7 @@ class CaptivePortalPersonPhoneSensor(CoordinatorEntity, SensorEntity):
         self._attr_unique_id = f"{entry.entry_id}_person_phone_{self._person_id}"
         self._attr_icon = "mdi:cellphone"
         self.entity_id = f"sensor.{clean_name}_phone"
+        self._attr_device_info = person_device_info(entry, str(self._person_id), self._person_name)
 
     @property
     def native_value(self) -> str | None:
