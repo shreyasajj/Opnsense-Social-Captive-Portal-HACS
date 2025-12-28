@@ -131,6 +131,7 @@ class CaptivePortalSensor(CoordinatorEntity, SensorEntity):
         self._attr_unique_id = f"{entry.entry_id}_{sensor_type}"
         self._attr_icon = icon
         self._attr_device_info = hub_device_info(entry)
+        self.entity_id = f"sensor.social_captive_portal_{sensor_type}"
 
     @property
     def native_value(self) -> int | None:
@@ -166,7 +167,7 @@ class CaptivePortalPersonPhoneSensor(CoordinatorEntity, SensorEntity):
         self._attr_name = f"{self._person_name} Phone"
         self._attr_unique_id = f"{entry.entry_id}_person_phone_{self._person_id}"
         self._attr_icon = "mdi:cellphone"
-        self.entity_id = f"sensor.{clean_name}_phone"
+        self.entity_id = f"sensor.social_captive_portal_{clean_name}_phone"
         self._attr_device_info = person_device_info(entry, str(self._person_id), self._person_name)
 
     @property
