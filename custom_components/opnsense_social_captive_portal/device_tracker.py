@@ -98,7 +98,7 @@ class CaptivePortalDeviceTracker(CoordinatorEntity, TrackerEntity):
         
         self._attr_name = self._person_name
         self._attr_unique_id = f"{entry.entry_id}_tracker_{self._person_id}"
-        self.entity_id = f"device_tracker.{clean_name}"
+        self.entity_id = f"device_tracker.social_captive_portal_{clean_name}"
 
     @property
     def source_type(self) -> SourceType:

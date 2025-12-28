@@ -96,7 +96,7 @@ class CaptivePortalApprovalPendingSensor(CoordinatorEntity, BinarySensorEntity):
         self._attr_unique_id = f"{entry.entry_id}_approval_pending"
         self._attr_device_info = hub_device_info(entry)
         self._attr_icon = "mdi:account-clock"
-        self.entity_id = "binary_sensor.captive_portal_approval_pending"
+        self.entity_id = "binary_sensor.social_captive_portal_approval_pending"
     
     @property
     def is_on(self) -> bool | None:
@@ -139,7 +139,7 @@ class CaptivePortalPersonPresenceSensor(CoordinatorEntity, BinarySensorEntity):
         self._attr_name = f"{self._person_name} Presence"
         self._attr_unique_id = f"{entry.entry_id}_person_{self._person_id}"
         self._attr_icon = "mdi:account"
-        self.entity_id = f"binary_sensor.captive_portal_{clean_name}_presence"
+        self.entity_id = f"binary_sensor.social_captive_portal_{clean_name}_presence"
     
     @property
     def is_on(self) -> bool | None:
