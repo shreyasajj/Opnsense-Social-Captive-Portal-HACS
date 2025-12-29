@@ -19,16 +19,16 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up Captive Portal device trackers for each person."""
-    coordinator: CaptivePortalCoordinator = hass.data[DOMAIN][entry.entry_id]
+    coordinator: CaptivePortalCoordinator = hass.data[DOMAIN][entry.entry_id]["coordinator"]
     
     # Wait for first data fetch
     await coordinator.async_config_entry_first_refresh()
-    
-    # Track which people we've already created device trackers for
-    if "created_trackers" not in hass.data[DOMAIN]:
-        hass.data[DOMAIN]["created_trackers"] = set()
-    
-    created_trackers = hass.data[DOMAIN]["created_trackers"]
+
+    # Track which people we've already created device trackers for (per entry)
+    if "created_trackers" not in hass.data[DOMAIN][entry.entry_id]:
+        hass.data[DOMAIN][entry.entry_id]["created_trackers"] = set()
+
+    created_trackers = hass.data[DOMAIN][entry.entry_id]["created_trackers"]
     
     def _create_person_trackers():
         """Create device trackers for any new people with phones."""

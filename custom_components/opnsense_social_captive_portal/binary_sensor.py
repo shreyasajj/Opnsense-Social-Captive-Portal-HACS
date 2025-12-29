@@ -21,7 +21,7 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up Captive Portal binary sensors."""
-    coordinator: CaptivePortalCoordinator = hass.data[DOMAIN][entry.entry_id]
+    coordinator: CaptivePortalCoordinator = hass.data[DOMAIN][entry.entry_id]["coordinator"]
     
     # Wait for first data fetch
     await coordinator.async_config_entry_first_refresh()
@@ -30,12 +30,12 @@ async def async_setup_entry(
     sensors = [
         CaptivePortalApprovalPendingSensor(coordinator, entry),
     ]
-    
-    # Track which people we've already created entities for
-    if "created_people" not in hass.data[DOMAIN]:
-        hass.data[DOMAIN]["created_people"] = set()
-    
-    created_people = hass.data[DOMAIN]["created_people"]
+
+    # Track which people we've already created entities for (per entry)
+    if "created_people" not in hass.data[DOMAIN][entry.entry_id]:
+        hass.data[DOMAIN][entry.entry_id]["created_people"] = set()
+
+    created_people = hass.data[DOMAIN][entry.entry_id]["created_people"]
     
     def _create_person_sensors():
         """Create sensors for any new people."""

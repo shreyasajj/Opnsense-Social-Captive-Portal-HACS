@@ -21,7 +21,7 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up Captive Portal sensors based on a config entry."""
-    coordinator: CaptivePortalCoordinator = hass.data[DOMAIN][entry.entry_id]
+    coordinator: CaptivePortalCoordinator = hass.data[DOMAIN][entry.entry_id]["coordinator"]
 
     # Static count sensors
     sensors = [
@@ -60,12 +60,12 @@ async def async_setup_entry(
     ]
 
     async_add_entities(sensors)
-    
-    # Track which person_phone sensors we've created
-    if "created_phone_sensors" not in hass.data[DOMAIN]:
-        hass.data[DOMAIN]["created_phone_sensors"] = set()
-    
-    created_phone_sensors = hass.data[DOMAIN]["created_phone_sensors"]
+
+    # Track which person_phone sensors we've created (per entry)
+    if "created_phone_sensors" not in hass.data[DOMAIN][entry.entry_id]:
+        hass.data[DOMAIN][entry.entry_id]["created_phone_sensors"] = set()
+
+    created_phone_sensors = hass.data[DOMAIN][entry.entry_id]["created_phone_sensors"]
     
     def _create_person_phone_sensors():
         """Create person_phone sensors for people with phone devices."""
